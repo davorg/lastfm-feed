@@ -1,0 +1,24 @@
+#!/usr/bin/perl -CS
+
+use strict;
+use warnings;
+use 5.010;
+
+use Net::LastFM;
+use Data::Dumper;
+
+my $user = shift // 'davorg';
+
+my $lastfm = Net::LastFM->new(
+    api_key    => $ENV{LASTFM_API_KEY},
+    api_secret => $ENV{LASTFM_SECRET},
+);
+
+my $data = $lastfm->request(
+  method => 'user.getRecentTracks',
+  user   => $user,
+);
+
+for (@{$data->{recenttracks}{track}}) {
+  say $_->{name}, ' - ', $_->{artist}{'#text'};
+}
