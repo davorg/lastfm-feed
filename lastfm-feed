@@ -6,6 +6,8 @@ use 5.010;
 
 use Net::LastFM;
 use Data::Dumper;
+use XML::Feed;
+use DateTime;
 
 my $user = shift // 'davorg';
 
@@ -14,11 +16,31 @@ my $lastfm = Net::LastFM->new(
     api_secret => $ENV{LASTFM_SECRET},
 );
 
+my $now = DateTime->now();
+
+my $feed = XML::Feed->new('Atom');
+$feed->title("Last.FM Recent Tracks for $user");
+$feed->link("https://last.fm/user/$user");
+$feed->id("https://last.fm/user/$user");
+$feed->self_link('http://dave.org.uk/feed-data/lastfm.xml');
+$feed->modified($now);
+
 my $data = $lastfm->request(
   method => 'user.getRecentTracks',
   user   => $user,
 );
 
+my $i = 0;
 for (@{$data->{recenttracks}{track}}) {
-  say $_->{name}, ' - ', $_->{artist}{'#text'};
+  my $entry = XML::Feed::Entry->new('Atom');
+  $entry->title("$_->{name} - $_->{artist}{'#text'}");
+  $entry->summary("$_->{name} - $_->{artist}{'#text'}");
+  $entry->link($_->{url});
+  $entry->modified(DateTime->from_epoch(epoch => $_->{date}{uts}));
+  $entry->author($_->{artist}{'#text'});
+  $entry->id("https://musicbrainz.org/recording/$_->{mbid}");
+  $feed->add_entry($entry);
+  last if $i++ == 10;
 }
+
+say $feed->as_xml;
