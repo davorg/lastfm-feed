@@ -36,7 +36,12 @@ for (@{$data->{recenttracks}{track}}) {
   $entry->title("$_->{name} - $_->{artist}{'#text'}");
   $entry->summary("$_->{name} - $_->{artist}{'#text'}");
   $entry->link($_->{url});
-  $entry->modified(DateTime->from_epoch(epoch => $_->{date}{uts}));
+  if (defined $_->{date}{uts}) {
+    $entry->modified(DateTime->from_epoch(epoch => $_->{date}{uts}));
+  } else {
+    warn "No date in this record?\n";
+    warn Dumper $_;
+  } 
   $entry->author($_->{artist}{'#text'});
   $entry->id("https://musicbrainz.org/recording/$_->{mbid}");
   $feed->add_entry($entry);
