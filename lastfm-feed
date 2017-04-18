@@ -39,8 +39,8 @@ for (@{$data->{recenttracks}{track}}) {
   if (defined $_->{date}{uts}) {
     $entry->modified(DateTime->from_epoch(epoch => $_->{date}{uts}));
   } else {
-    warn "No date in this record?\n";
-    warn Dumper $_;
+    # Hacky hack is hacky!
+    $entry->modified(DateTime->now);
   } 
   $entry->author($_->{artist}{'#text'});
   $entry->id("https://musicbrainz.org/recording/$_->{mbid}");
