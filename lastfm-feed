@@ -38,6 +38,9 @@ my $data = $lastfm->request(
 
 my $i = 0;
 for (@{$data->{recenttracks}{track}}) {
+  # Skip currently playing track
+  next if ($_->{'@attr'}{nowplaying} // '') eq 'true';
+
   my $entry = XML::Feed::Entry->new('Atom');
   $entry->title("$_->{name} - $_->{artist}{'#text'}");
   $entry->summary("$_->{name} - $_->{artist}{'#text'}");
