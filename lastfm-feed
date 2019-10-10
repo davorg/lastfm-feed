@@ -5,11 +5,17 @@ use warnings;
 use 5.010;
 
 use Net::LastFM;
+use JSON;
 use Data::Dumper;
 use XML::Feed;
 use DateTime;
 
-my $user = shift // 'davorg';
+my $config_json = do { local $/; <DATA> };
+my $config      = JSON->new->decode($config_json);
+
+my $user = shift // $config->{feed_default_user};
+
+$config->{$_} =~ s/\{user}/$user/g for keys %$config;
 
 my $lastfm = Net::LastFM->new(
     api_key    => $ENV{LASTFM_API_KEY},
@@ -43,9 +49,18 @@ for (@{$data->{recenttracks}{track}}) {
     $entry->modified(DateTime->now);
   } 
   $entry->author($_->{artist}{'#text'});
-  $entry->id("https://musicbrainz.org/recording/$_->{mbid}");
+  $entry->id($config->{feed_mb_id} =~ s/\{mbid}/$_->{mbid}/gr);
   $feed->add_entry($entry);
   last if $i++ == 10;
 }
 
 say $feed->as_xml;
+__DATA__
+{
+"feed_default_user": "davorg",
+"feed_title": "Last.FM Recent Tracks for {user}",
+"feed_link": "https://last.fm/user/{user}",
+"feed_id": "https://last.fm/user/{user}",
+"feed_self_link": "http://dave.org.uk/feed-data/lastfm.xml",
+"feed_mb_id": "https://musicbrainz.org/recording/{mbid}"
+}
