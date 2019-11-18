@@ -36,6 +36,11 @@ my $data = $lastfm->request(
   user   => $user,
 );
 
+unless ($data) {
+  warn "No data returned. Exiting.\n";
+  exit 1;
+}
+
 my $i = 0;
 for (@{$data->{recenttracks}{track}}) {
   # Skip currently playing track
