@@ -28,7 +28,7 @@ my $feed = XML::Feed->new('Atom');
 $feed->title("Last.FM Recent Tracks for $user");
 $feed->link("https://last.fm/user/$user");
 $feed->id("https://last.fm/user/$user");
-$feed->self_link('http://dave.org.uk/feed-data/lastfm.xml');
+$feed->self_link($config->{feed_default_user});
 $feed->modified($now);
 
 my $data = $lastfm->request_signed(
