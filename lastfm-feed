@@ -1,4 +1,4 @@
-#!/usr/bin/perl -CS
+#!/usr/bin/perl
 
 use strict;
 use warnings;
@@ -63,6 +63,7 @@ for (@{$data->{recenttracks}{track}}) {
 }
 
 say $feed->as_xml;
+
 __DATA__
 {
 "feed_default_user": "davorg",
